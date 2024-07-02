@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.equipment.mapper.EquipmentMapper">
+
+    <select id="oeeUtilizationList" parameterType="Map" resultType="Map">
+        select b.* from
+        dm_equipment a
+        LEFT JOIN dm_equipment_status_record b ON b.equipment_id =a.id
+        where
+        a.`status` ='0'and
+        b.record_time &gt;=#{map.beginDate} and
+        b.record_time &lt;=#{map.endDate}
+        order by equipment_id desc,record_time desc
+    </select>
+
+    <select id="selectStatusRecord" parameterType="Map" resultType="String">
+        select  equipment_status from dm_equipment_status_record
+        where equipment_id = #{map.equipmentId}
+        order by record_time desc
+            LIMIT 1
+    </select>
+
+    <insert id="insertStatusRecord" parameterType="Map">
+        INSERT into dm_equipment_status_record
+        (equipment_id,equipment_number,equipment_name,station_name,equipment_status,record_time)VALUES
+            (#{map.equipmentId},#{map.equipmentNumber},#{map.equipmentName},#{map.stationName},#{map.equipmentStatus},NOW())
+
+    </insert>
+</mapper>

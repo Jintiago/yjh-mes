@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.UnitChangeMapper">
+
+    <resultMap type="UnitChange" id="UnitChangeResult">
+        <result property="id"    column="id"    />
+        <result property="mainUnit"    column="main_unit"    />
+        <result property="deputyUnit"    column="deputy_unit"    />
+        <result property="proportion"    column="proportion"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectUnitChangeVo">
+        select id, main_unit, deputy_unit, proportion, remark from md_unit_change
+    </sql>
+
+    <select id="selectUnitChangeList" parameterType="UnitChange" resultMap="UnitChangeResult">
+        <include refid="selectUnitChangeVo"/>
+        <where>
+            <if test="mainUnit != null "> and main_unit = #{mainUnit}</if>
+            <if test="deputyUnit != null "> and deputy_unit = #{deputyUnit}</if>
+        </where>
+        order by main_unit asc
+    </select>
+
+    <select id="selectUnitChangeById" parameterType="Long" resultMap="UnitChangeResult">
+        <include refid="selectUnitChangeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertUnitChange" parameterType="UnitChange" useGeneratedKeys="true" keyProperty="id">
+        insert into md_unit_change
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mainUnit != null">main_unit,</if>
+            <if test="deputyUnit != null">deputy_unit,</if>
+            <if test="proportion != null">proportion,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mainUnit != null">#{mainUnit},</if>
+            <if test="deputyUnit != null">#{deputyUnit},</if>
+            <if test="proportion != null">#{proportion},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUnitChange" parameterType="UnitChange">
+        update md_unit_change
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mainUnit != null">main_unit = #{mainUnit},</if>
+            <if test="deputyUnit != null">deputy_unit = #{deputyUnit},</if>
+            <if test="proportion != null">proportion = #{proportion},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUnitChangeById" parameterType="Long">
+        delete from md_unit_change where id = #{id}
+    </delete>
+
+    <delete id="deleteUnitChangeByIds" parameterType="String">
+        delete from md_unit_change where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

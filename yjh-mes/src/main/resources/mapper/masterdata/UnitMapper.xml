@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.UnitMapper">
+
+    <select id="selectUnitById" resultType="cn.sourceplan.masterdata.domain.Unit">
+        select * from md_unit where id = #{id}
+    </select>
+
+    <insert id="insertUnit" parameterType="Unit" useGeneratedKeys="true" keyProperty="id">
+        insert into md_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="nameEn != null">name_en,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="nameEn != null">#{nameEn},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUnit" parameterType="Unit">
+        update md_unit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="nameEn != null">name_en = #{nameEn},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUnitById" parameterType="Long">
+        delete from md_unit where id = #{id}
+    </delete>
+
+    <delete id="deleteUnitByIds" parameterType="String">
+        delete from md_unit where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

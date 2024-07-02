@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.statement.mapper.ProductionReportMapper">
+
+
+    <!--根据订单查询每道工序生产情况-->
+    <select id="queryProcessBySaleOrderEntryId" parameterType="Long"  resultType="com.alibaba.fastjson2.JSONObject">
+        SELECT
+            a.process_name AS processName,
+            concat(
+                    CAST(
+                            ROUND(SUM(a.repQ)) AS CHAR
+                        ),
+                    '/',
+                    CAST(
+                            ROUND(SUM(a.planQ)) AS CHAR
+                        )
+                ) AS quantity,
+
+            IF (
+                            SUM(a.repQ) - SUM(a.planQ) >= 0,
+                            'green',
+                            'yellow'
+                ) AS color,
+            CONCAT(
+                    CAST(
+                            ROUND(
+                                        (
+                                            SUM(a.repQ) / SUM(a.planQ)
+                                            ) * 100
+                                ) AS CHAR
+                        ),
+                    '%'
+                ) AS `schedule`
+        FROM
+            pro_workorder pw
+                LEFT JOIN (
+                SELECT
+                    pwe.id,
+                    pwe.workorder_id,
+                    pwe.process_name,
+                    pwe.report_quantity AS planQ,
+                    SUM(rep.report_quantity) AS repQ
+                FROM
+                    pro_workorder_entry pwe
+                        LEFT JOIN pro_report rep ON rep.work_order_entry_id = pwe.id
+                WHERE
+                    pwe.type = 'report'
+
+                GROUP BY
+                    pwe.id
+            ) a ON a.workorder_id = pw.id
+        WHERE
+            pw.source_info LIKE concat('%','saleOrderEntryId','%')
+            and pw.source_info LIKE concat('%',#{id},'%')
+            and a.process_name is not null
+        GROUP BY
+            a.process_name
+
+    </select>
+
+    <!--根据工序查询生产情况-->
+    <select id="queryProductionExecutionByProcess" parameterType="String"  resultType="com.alibaba.fastjson2.JSONObject">
+        SELECT
+            pwe.process_name AS process,
+            CASE pw.pro_status
+                WHEN 'A' THEN
+                    '待排产'
+                WHEN 'B' THEN
+                    '生产中'
+                WHEN 'D' THEN
+                    '已完成'
+                END AS `status`,
+            pwe.report_material_name AS material,
+            pwe.report_specification AS specification,
+            IFNULL(pwe.report_quantity ,0) AS planQuantity,
+            IFNULL(SUM(prp.report_quantity),0)  AS reportQuantity,
+            CONCAT(ROUND(IFNULL(SUM(prp.report_quantity),0)/IFNULL(pwe.report_quantity ,0)*100,1) ,'%') AS `schedule`,
+            so.customer_name as customerName,
+            pwe.extend_field as extendField,
+            pw.source_info as sourceInfo
+        FROM
+            pro_workorder_entry pwe
+            LEFT JOIN pro_workorder pw ON pw.id = pwe.workorder_id
+            LEFT JOIN pro_report prp ON prp.work_order_entry_id = pwe.id
+            left join sal_order_entry soe on
+                pw.source_info like concat('{"saleOrderEntryId":[',soe.id,']}') or
+                pw.source_info like concat('%,',soe.id,',%' ) or
+                pw.source_info like concat('%,',soe.id,']}')or
+                pw.source_info like concat('{"saleOrderEntryId":[',soe.id,',%' )
+            left join sal_order so on so.id = soe.main_id
+        WHERE
+            pwe.type = 'report'
+          AND pw.pro_status IN ('A', 'B','D')
+          AND pwe.process_name LIKE #{processName}
+
+        GROUP BY pwe.id,pwe.process_name,pwe.report_material_name,pwe.report_specification
+        ORDER BY
+            FIELD(pw.pro_status, 'B', 'A','D'),
+            CAST(
+                SUBSTRING(
+                        CONCAT( ROUND( IFNULL( SUM( prp.report_quantity ), 0 )/ IFNULL( pwe.report_quantity, 0 )* 100, 1 ), '%' ),
+                        1,
+                        LENGTH(
+                                CONCAT( ROUND( IFNULL( SUM( prp.report_quantity ), 0 )/ IFNULL( pwe.report_quantity, 0 )* 100, 1 ), '%' )
+                        ) - 1
+                ) AS UNSIGNED
+            )
+
+    </select>
+
+
+</mapper>

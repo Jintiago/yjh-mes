@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.production.mapper.RouteMapper">
+
+    <resultMap type="Route" id="RouteResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="describes"    column="describes"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="RouteAndRouteProcessResult" type="Route" extends="RouteResult">
+        <collection property="routeProcessList" notNullColumn="sub_id" javaType="java.util.List" resultMap="RouteProcessResult" />
+    </resultMap>
+
+    <resultMap type="RouteProcess" id="RouteProcessResult">
+        <result property="id"    column="sub_id"    />
+        <result property="routeId"    column="sub_route_id"    />
+        <result property="processId"    column="sub_process_id"    />
+        <result property="processName"    column="sub_process_name"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="nextRule"    column="sub_next_rule"    />
+        <result property="status"    column="sub_status"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="qcType"    column="sub_qc_type"    />
+        <result property="firstQcQuantity"    column="sub_first_qc_quantity"    />
+    </resultMap>
+
+    <select id="selectRouteById" parameterType="Long" resultMap="RouteAndRouteProcessResult">
+        select
+            a.id, a.number, a.name, a.describes, a.status,
+            a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+            b.id as sub_id, b.route_id as sub_route_id, b.process_id as sub_process_id, b.process_name as sub_process_name, b.sort as sub_sort,
+            b.next_rule as sub_next_rule, b.status as sub_status, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by,
+            b.update_time as sub_update_time,b.qc_type as sub_qc_type, first_qc_quantity as sub_first_qc_quantity
+        from pro_route a
+        left join pro_route_process b on b.route_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <update id="updateRoute" parameterType="Route">
+        update pro_route
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">number = #{number},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="describes != null">describes = #{describes},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRouteByIds" parameterType="String">
+        delete from pro_route where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRouteProcessByRouteIds" parameterType="String">
+        delete from pro_route_process where route_id in
+        <foreach item="routeId" collection="array" open="(" separator="," close=")">
+            #{routeId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRouteProcessByRouteId" parameterType="Long">
+        delete from pro_route_process where route_id = #{routeId}
+    </delete>
+
+    <insert id="batchRouteProcess">
+        insert into pro_route_process(
+            id, route_id, process_id, process_name, sort,
+            next_rule, status,qc_type,first_qc_quantity) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.routeId}, #{item.processId}, #{item.processName}, #{item.sort},
+             #{item.nextRule}, #{item.status},#{item.qcType},#{item.firstQcQuantity} )
+        </foreach>
+    </insert>
+</mapper>

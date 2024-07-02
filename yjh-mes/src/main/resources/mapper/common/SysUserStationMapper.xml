@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.common.mapper.SysUserStationMapper">
+
+    <delete id="deleteSysUserStationByIds" parameterType="String">
+        delete from sys_user_station where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getInfoByUserId"  parameterType="Long" resultType="SysUserStation">
+        select ss.workshop_name, s.* from sys_user_station s
+        left join md_station ss on ss.id = s.station_id
+        left join dm_equipment md on md.id = s.equipment_id
+        where user_id =#{userId}
+        order by update_time desc limit 1
+    </select>
+</mapper>

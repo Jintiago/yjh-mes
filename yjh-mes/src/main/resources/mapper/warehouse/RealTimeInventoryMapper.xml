@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.warehouse.mapper.RealTimeInventoryMapper">
+
+    <resultMap type="com.alibaba.fastjson2.JSONObject" id="RealTimeInventoryResult">
+        <result property="quantity"    column="aa"    />
+        <result property="warehouseId"    column="warehouse_id"    />
+        <result property="warehouseName"    column="warehouse_name"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialNumber"    column="material_number"    />
+        <result property="specification"    column="specification"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialUnitName"    column="material_unit_name"    />
+        <result property="customFieldA"    column="custom_field_a"    />
+        <result property="customFieldB"    column="custom_field_b"    />
+    </resultMap>
+
+    <sql id="selectRealTimeInventoryVo">
+        SELECT
+            0 + CAST(IFNULL(`intoG`.into_quantity, 0) - IFNULL(`outGG`.out_quantity, 0) AS CHAR) AS aa,
+                `intoG`.warehouse_id,
+                `intoG`.warehouse_name,
+                `intoG`.material_id,
+                `intoG`.material_number,
+                `intoG`.specification,
+                `intoG`.material_name,
+                `intoG`.material_unit_name
+                <!--  定制化查询Begin -->
+                    ,`intoG`.custom_field_a
+                    ,`intoG`.custom_field_b
+                    ,SUBSTRING_INDEX(SUBSTRING_INDEX(`intoG`.specification, 'c', 1),'*',-1) AS custom_sort
+                <!-- 定制化查询End -->
+        FROM
+            (
+                SELECT
+                    SUM(
+                            IFNULL(`into`.quantity, 0.0)
+                        ) AS into_quantity,
+                    `into`.warehouse_id,
+                    `into`.warehouse_name,
+                    `into`.material_id,
+                    `into`.material_number,
+                    `into`.specification,
+                    `into`.material_name,
+                    `into`.material_unit_name
+                    <!--  定制化查询Begin -->
+                        ,`into`.custom_field_a
+                        ,`into`.custom_field_b
+                    <!-- 定制化查询End -->
+                FROM
+                    (
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    a.warehouse_id,
+                                    a.warehouse_name,
+                                    b.material_id,
+                                    b.material_number,
+                                    b.material_name,
+                                    b.specification,
+                                    b.quantity,
+                                    b.material_unit_name
+                                <!--  定制化查询Begin -->
+                                    ,null as custom_field_a
+                                    ,null as custom_field_b
+                                <!-- 定制化查询End -->
+                                FROM
+                                    wm_procure_into_entry b
+                                    LEFT JOIN wm_procure_into a ON a.id = b.main_id
+                            ) pinto
+                        UNION ALL
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    a.warehouse_id,
+                                    a.warehouse_name,
+                                    b.material_id,
+                                    b.material_number,
+                                    b.material_name,
+                                    b.specification,
+                                    b.quantity,
+                                    b.material_unit_name
+                                    <!--  定制化查询Begin -->
+                                        ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(b.extend_field, '$')), '$.viscosity')) AS  custom_field_a
+                                        ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(b.extend_field, '$')), '$.banxing')) AS  custom_field_b
+                                    <!-- 定制化查询End -->
+                                FROM
+                                    wm_sale_return_entry b
+                                        LEFT JOIN wm_sale_return a ON a.id = b.main_id
+                            ) returnInto
+                        UNION ALL
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    a.warehouse_id,
+                                    a.warehouse_name,
+                                    b.material_id,
+                                    b.material_number,
+                                    b.material_name,
+                                    b.specification,
+                                    b.quantity,
+                                    b.material_unit_name
+                                    <!--  定制化查询Begin -->
+                                        ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(b.extend_field, '$')), '$.viscosity')) AS  custom_field_a
+                                        ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(b.extend_field, '$')), '$.banxing')) AS  custom_field_b
+                                    <!-- 定制化查询End -->
+                                FROM
+                                    wm_manufacture_into_entry b
+                                        LEFT JOIN wm_manufacture_into a ON a.id = b.main_id
+                            ) minto
+                        UNION ALL
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    a.warehouse_id,
+                                    a.warehouse_name,
+                                    b.material_id,
+                                    b.material_number,
+                                    b.material_name,
+                                    b.specification,
+                                    b.take_quantity AS quantity,
+                                    b.material_unit_name
+                                    <!--  定制化查询Begin -->
+                                        ,null as custom_field_a
+                                        ,null as custom_field_b
+                                    <!-- 定制化查询End -->
+                                FROM
+                                    wm_take_inventory_entry b
+                                        LEFT JOIN wm_take_inventory a ON a.id = b.main_id
+                                WHERE
+                                    a.initialize_flag = 'Y'
+                            ) tinto
+                        UNION ALL
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    a.warehouse_id,
+                                    a.warehouse_name,
+                                    b.material_id,
+                                    b.material_number,
+                                    b.material_name,
+                                    b.specification,
+                                    b.quantity,
+                                    b.material_unit_name
+                                    <!--  定制化查询Begin -->
+                                        ,null as custom_field_a
+                                        ,null as custom_field_b
+                                    <!-- 定制化查询End -->
+                                FROM
+                                    wm_profit_loss_record_entry b
+                                        LEFT JOIN wm_profit_loss_record a ON a.id = b.main_id
+                                WHERE
+                                    a.type = 'A'
+                            ) plinto
+                    ) `into`
+                GROUP BY
+                    `into`.warehouse_id,
+                    `into`.warehouse_name,
+                    `into`.material_id,
+                    `into`.material_number,
+                    `into`.specification,
+                    `into`.material_name,
+                    `into`.material_unit_name,
+                    `into`.custom_field_a,
+                    `into`.custom_field_b
+            ) `intoG`
+                LEFT JOIN (
+                SELECT
+                    *
+                FROM
+                    (
+                        SELECT
+                            SUM(IFNULL(`out`.quantity, 0.0)) AS out_quantity,
+                            `out`.*
+                        FROM
+                            (
+                                SELECT
+                                    *
+                                FROM
+                                    (
+                                        SELECT
+                                            a.warehouse_id,
+                                            a.warehouse_name,
+                                            b.material_id,
+                                            b.material_number,
+                                            b.material_name,
+                                            b.specification,
+                                            b.quantity,
+                                            b.material_unit_name
+                                            <!--  定制化查询Begin -->
+                                                ,null as custom_field_a
+                                                ,null as custom_field_b
+                                            <!-- 定制化查询End -->
+                                        FROM
+                                            wm_production_pick_entry b
+                                            LEFT JOIN wm_production_pick a ON a.id = b.main_id
+                                        where a.`status` ='A'
+                                    ) pinto
+                                UNION ALL
+                                SELECT
+                                    *
+                                FROM
+                                    (
+                                        SELECT
+                                            a.warehouse_id,
+                                            a.warehouse_name,
+                                            b.material_id,
+                                            b.material_number,
+                                            b.material_name,
+                                            b.specification,
+                                            b.quantity,
+                                            b.material_unit_name
+                                            <!--  定制化查询Begin -->
+                                            ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(extend_field, '$')), '$.viscosity')) AS  custom_field_a
+                                            ,JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(extend_field, '$')), '$.banxing')) AS  custom_field_b
+                                            <!-- 定制化查询End -->
+                                        FROM
+                                            wm_sale_out_entry b
+                                                LEFT JOIN wm_sale_out a ON a.id = b.main_id
+                                    ) minto
+                                UNION ALL
+                                SELECT
+                                    *
+                                FROM
+                                    (
+                                        SELECT
+                                            a.warehouse_id,
+                                            a.warehouse_name,
+                                            b.material_id,
+                                            b.material_number,
+                                            b.material_name,
+                                            b.specification,
+                                            b.quantity,
+                                            b.material_unit_name
+                                            <!--  定制化查询Begin -->
+                                                ,null as custom_field_a
+                                                ,null as custom_field_b
+                                            <!-- 定制化查询End -->
+                                        FROM
+                                            wm_profit_loss_record_entry b
+                                                LEFT JOIN wm_profit_loss_record a ON a.id = b.main_id
+                                        WHERE
+                                            a.type = 'B'
+                                    ) plinto
+                                UNION ALL
+                                SELECT
+                                    *
+                                FROM
+                                    (
+                                        SELECT
+                                            a.warehouse_id,
+                                            a.warehouse_name,
+                                            b.material_id,
+                                            b.material_number,
+                                            b.material_name,
+                                            b.specification,
+                                            b.quantity,
+                                            b.material_unit_name
+                                            <!--  定制化查询Begin -->
+                                                ,null as custom_field_a
+                                                ,null as custom_field_b
+                                            <!-- 定制化查询End -->
+                                        FROM
+                                            wm_other_out_entry b
+                                                LEFT JOIN wm_other_out a ON a.id = b.main_id
+                                    ) otherOut
+                            ) `out`
+                        GROUP BY
+                            `out`.warehouse_id,
+                            `out`.warehouse_name,
+                            `out`.material_id,
+                            `out`.material_number,
+                            `out`.specification,
+                            `out`.material_name,
+                            `out`.material_unit_name,
+                            `out`.custom_field_a,
+                            `out`.custom_field_b
+                    ) `outG`
+            ) `outGG` ON `outGG`.material_id = `intoG`.material_id
+                AND `outGG`.warehouse_id = `intoG`.warehouse_id
+                AND `outGG`.specification = `intoG`.specification
+
+    </sql>
+
+    <select id="selectRealTimeInventoryList" parameterType="RealTimeInventory" resultMap="RealTimeInventoryResult">
+        <include refid="selectRealTimeInventoryVo"/>
+        <where>
+            IFNULL(`intoG`.into_quantity, 0.0) - IFNULL(`outGG`.out_quantity, 0.0) != 0
+            <if test="warehouseId != null  "> and `intoG`.warehouse_id = #{warehouseId} </if>
+            <if test="materialId != null and  materialId!=''"> and `intoG`.material_id = #{materialId} </if>
+            <if test="materialName != null  and materialName != ''"> and `intoG`.material_name like concat('%', #{materialName}, '%') </if>
+            <if test="specification != null  and specification != ''"> and `intoG`.specification like concat('%', #{specification},'%') </if>
+            <if test="params.materialIds != null "> and `intoG`.material_id in (${params.materialIds}) </if>
+            <!--  天润定制化过滤功能begin -->
+            <if test="params.hdqj != null ">
+                <foreach collection="params.hdqj.split('-')"  item="item" index="index" >
+                    <if test="index==0">
+                        and CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`intoG`.specification, '*', - 1),'c',1) AS DECIMAL (10, 2))
+                        <![CDATA[ >= ]]>  ${item}
+                    </if>
+                    <if test="index==1">
+                        and CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`intoG`.specification, '*', - 1),'c',1) AS DECIMAL (10, 2))
+                        <![CDATA[ <= ]]>  ${item}
+                    </if>
+                </foreach>
+            </if>
+            <!--  天润定制化过滤功能end -->
+        </where>
+        order by warehouse_id asc,material_number asc
+        <!--  定制化排序begin -->
+            ,custom_sort asc
+        <!--  定制化排序end -->
+    </select>
+
+
+    <select id="getSpecificationList" parameterType="RealTimeInventory" resultType="String">
+        select specification from (
+        <include refid="selectRealTimeInventoryVo"/>
+        <where>
+            <if test="warehouseId != null  "> and `intoG`.warehouse_id = #{warehouseId} </if>
+            <if test="materialId != null and  materialId!=''"> and `intoG`.material_id = #{materialId} </if>
+            <if test="materialName != null  and materialName != ''"> and `intoG`.material_name like concat('%', #{materialName}, '%') </if>
+            <if test="specification != null  and specification != ''"> and `intoG`.specification like concat('%', #{specification},'%') </if>
+        </where>
+                 order by warehouse_id asc,material_number asc
+        )a
+        group by
+        `a`.material_id,
+        `a`.material_number,
+        `a`.specification,
+        `a`.material_name,
+        `a`.material_unit_name
+    </select>
+
+
+
+</mapper>

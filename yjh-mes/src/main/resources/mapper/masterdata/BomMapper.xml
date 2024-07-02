@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.BomMapper">
+
+    <select id="selectBomList" resultMap="bom">
+        select * from md_bom b
+        <where>
+            <if test="materialName != null and materialName != ''">
+                and material_name like concat('%', #{materialName}, '%')
+            </if>
+            <if test="number != null and number != ''">
+                and `number` like concat('%', #{number}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="materialId != null ">
+                and material_id = #{materialId}
+            </if>
+            <if test="parentId != null and parentId != ''">
+                and parent_id = #{parentId}
+            </if>
+        </where>
+        order by  `number` desc
+    </select>
+    <resultMap id="bom" type="cn.sourceplan.masterdata.domain.Bom">
+        <result property="materialId" column="material_id" />
+        <association property="material"
+                     column="material_id"
+                     select="cn.sourceplan.masterdata.mapper.MaterialMapper.selectMaterialById"
+                     javaType="cn.sourceplan.masterdata.domain.Material">
+        </association>
+    </resultMap>
+
+    <delete id="deleteBomById" parameterType="Long">
+        delete from md_bom where id = #{id}
+    </delete>
+
+    <delete id="deleteBomByIds" parameterType="String">
+        delete from md_bom where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

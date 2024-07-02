@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.warehouse.mapper.SaleReturnMapper">
+
+    <resultMap type="SaleReturn" id="SaleReturnResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="warehouseId"    column="warehouse_id"    />
+        <result property="warehouseNumber"    column="warehouse_number"    />
+        <result property="warehouseName"    column="warehouse_name"    />
+        <result property="regionId"    column="region_id"    />
+        <result property="regionNumber"    column="region_number"    />
+        <result property="regionName"    column="region_name"    />
+        <result property="areaId"    column="area_id"    />
+        <result property="areaNumber"    column="area_number"    />
+        <result property="areaName"    column="area_name"    />
+        <result property="intoDate"    column="into_date"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="keeper"    column="keeper"    />
+        <result property="checker"    column="checker"    />
+        <result property="checkDate"    column="check_date"    />
+        <result property="snArray"    column="sn_array"    />
+    </resultMap>
+
+    <resultMap id="SaleReturnSaleReturnEntryResult" type="SaleReturn" extends="SaleReturnResult">
+        <collection property="saleReturnEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="SaleReturnEntryResult" />
+    </resultMap>
+
+    <resultMap type="SaleReturnEntry" id="SaleReturnEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="materialNumber"    column="sub_material_number"    />
+        <result property="materialName"    column="sub_material_name"    />
+        <result property="specification"    column="sub_specification"    />
+        <result property="materialUnitId"    column="sub_material_unit_id"    />
+        <result property="materialUnitName"    column="sub_material_unit_name"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="batchNumber"    column="sub_batch_number"    />
+        <result property="warehouseId"    column="sub_warehouse_id"    />
+        <result property="warehouseNumber"    column="sub_warehouse_number"    />
+        <result property="warehouseName"    column="sub_warehouse_name"    />
+        <result property="regionId"    column="sub_region_id"    />
+        <result property="regionNumber"    column="sub_region_number"    />
+        <result property="regionName"    column="sub_region_name"    />
+        <result property="areaId"    column="sub_area_id"    />
+        <result property="areaNumber"    column="sub_area_number"    />
+        <result property="areaName"    column="sub_area_name"    />
+        <result property="manufactureDate"    column="sub_manufacture_date"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="extendField"    column="sub_extend_field"    />
+        <association property="saleReturn"
+                     javaType="cn.sourceplan.warehouse.domain.SaleReturn" resultMap="SaleReturnResult">
+        </association>
+    </resultMap>
+
+    <sql id="selectSaleReturnVo">
+        select a.id, a.number, a.customer_id, a.customer_name, a.warehouse_id, a.warehouse_number, a.warehouse_name, a.region_id, a.region_number,
+               a.region_name, a.area_id, a.area_number, a.area_name, a.into_date, a.status, a.remark, a.create_by, a.create_time, a.update_by,
+               a.update_time, a.keeper, a.checker, a.check_date, a.sn_array,
+               b.id as sub_id, b.sort as sub_sort, b.main_id as sub_main_id, b.material_id as sub_material_id,
+               b.material_number as sub_material_number, b.material_name as sub_material_name, b.specification as sub_specification,
+               b.material_unit_id as sub_material_unit_id, b.material_unit_name as sub_material_unit_name, b.quantity as sub_quantity,
+               b.batch_number as sub_batch_number, b.warehouse_id as sub_warehouse_id, b.warehouse_number as sub_warehouse_number,
+               b.warehouse_name as sub_warehouse_name, b.region_id as sub_region_id, b.region_number as sub_region_number,
+               b.region_name as sub_region_name, b.area_id as sub_area_id, b.area_number as sub_area_number, b.area_name as sub_area_name,
+               b.manufacture_date as sub_manufacture_date, b.create_by as sub_create_by, b.create_time as sub_create_time,
+               b.update_by as sub_update_by, b.update_time as sub_update_time, b.remark as sub_remark,
+               b.extend_field as sub_extend_field
+    </sql>
+
+    <select id="selectSaleReturnList" parameterType="SaleReturn" resultMap="SaleReturnEntryResult">
+        <include refid="selectSaleReturnVo"/>
+        from  wm_sale_return_entry b
+        left join wm_sale_return a  on a.id =b.main_id
+        <where>
+            <if test="number != null  and number != ''"> and number like concat('%', #{number}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="warehouseName != null  and warehouseName != ''"> and warehouse_name like concat('%', #{warehouseName}, '%')</if>
+            <if test="params.beginIntoDate != null and params.beginIntoDate != '' and params.endIntoDate != null and params.endIntoDate != ''"> and into_date between #{params.beginIntoDate} and #{params.endIntoDate}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectSaleReturnById" parameterType="Long" resultMap="SaleReturnSaleReturnEntryResult">
+        <include refid="selectSaleReturnVo"/>
+        from wm_sale_return a
+        left join wm_sale_return_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.buy.mapper.BuyOrderMapper">
+    
+    <resultMap type="BuyOrder" id="BuyOrderResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="status"    column="status"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="buyDate"    column="buy_date"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="supplierName"    column="supplier_name"    />
+        <result property="checker"    column="checker"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="amount"    column="amount"    />
+    </resultMap>
+
+    <resultMap id="BuyOrderBuyOrderEntryResult" type="BuyOrder" extends="BuyOrderResult">
+        <collection property="buyOrderEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="BuyOrderEntryResult" />
+    </resultMap>
+
+    <resultMap type="BuyOrderEntry" id="BuyOrderEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="materialNumber"    column="sub_material_number"    />
+        <result property="materialName"    column="sub_material_name"    />
+        <result property="materialSpecification"    column="sub_material_specification"    />
+        <result property="unitId"    column="sub_unit_id"    />
+        <result property="unitName"    column="sub_unit_name"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="price"    column="sub_price"    />
+        <result property="taxPrice"    column="sub_tax_price"    />
+        <result property="isGift"    column="sub_is_gift"    />
+        <result property="taxRate"    column="sub_tax_rate"    />
+        <result property="totalTax"    column="sub_total_tax"    />
+        <result property="totalPrice"    column="sub_total_price"    />
+        <result property="totalTaxPrice"    column="sub_total_tax_price"    />
+        <result property="needDate"    column="sub_need_date"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="status"    column="sub_status"    />
+        <result property="extendField"    column="sub_extend_field"    />
+    </resultMap>
+
+    <sql id="selectBuyOrderVo">
+        select id, number, status, dept_id, dept_name, user_id, user_name, buy_date, supplier_id, supplier_name, checker, remark, create_by, create_time, update_by, update_time, amount from buy_order
+    </sql>
+
+    <select id="selectBuyOrderList" parameterType="BuyOrder" resultMap="BuyOrderResult">
+        <include refid="selectBuyOrderVo"/>
+        <where>  
+            <if test="number != null  and number != ''"> and number = #{number}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="params.beginBuyDate != null and params.beginBuyDate != '' and params.endBuyDate != null and params.endBuyDate != ''"> and buy_date between #{params.beginBuyDate} and #{params.endBuyDate}</if>
+            <if test="supplierName != null  and supplierName != ''"> and supplier_name like concat('%', #{supplierName}, '%')</if>
+            <if test="checker != null  and checker != ''"> and checker like concat('%', #{checker}, '%')</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+        </where>
+    </select>
+    
+    <select id="selectBuyOrderById" parameterType="Long" resultMap="BuyOrderBuyOrderEntryResult">
+        select a.id, a.number, a.status, a.dept_id, a.dept_name, a.user_id, a.user_name, a.buy_date, a.supplier_id, a.supplier_name, a.checker, a.remark, a.create_by, a.create_time, a.update_by, a.update_time, a.amount,
+ b.id as sub_id, b.sort as sub_sort, b.main_id as sub_main_id, b.material_id as sub_material_id, b.material_number as sub_material_number, b.material_name as sub_material_name, b.material_specification as sub_material_specification, b.unit_id as sub_unit_id, b.unit_name as sub_unit_name, b.quantity as sub_quantity, b.price as sub_price, b.tax_price as sub_tax_price, b.is_gift as sub_is_gift, b.tax_rate as sub_tax_rate, b.total_tax as sub_total_tax, b.total_price as sub_total_price, b.total_tax_price as sub_total_tax_price, b.need_date as sub_need_date, b.remark as sub_remark, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.status as sub_status, b.extend_field as sub_extend_field
+        from buy_order a
+        left join buy_order_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertBuyOrder" parameterType="BuyOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into buy_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null and number != ''">number,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="buyDate != null">buy_date,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="supplierName != null">supplier_name,</if>
+            <if test="checker != null">checker,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="amount != null">amount,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="number != null and number != ''">#{number},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="buyDate != null">#{buyDate},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="supplierName != null">#{supplierName},</if>
+            <if test="checker != null">#{checker},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="amount != null">#{amount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBuyOrder" parameterType="BuyOrder">
+        update buy_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null and number != ''">number = #{number},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="buyDate != null">buy_date = #{buyDate},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="checker != null">checker = #{checker},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="amount != null">amount = #{amount},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBuyOrderById" parameterType="Long">
+        delete from buy_order where id = #{id}
+    </delete>
+
+    <delete id="deleteBuyOrderByIds" parameterType="String">
+        delete from buy_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteBuyOrderEntryByMainIds" parameterType="String">
+        delete from buy_order_entry where main_id in 
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteBuyOrderEntryByMainId" parameterType="Long">
+        delete from buy_order_entry where main_id = #{mainId}
+    </delete>
+
+    <insert id="batchBuyOrderEntry">
+        insert into buy_order_entry( id, sort, main_id, material_id, material_number, material_name, material_specification, unit_id, unit_name, quantity, price, tax_price, is_gift, tax_rate, total_tax, total_price, total_tax_price, need_date, remark, create_by, create_time, update_by, update_time, status, extend_field) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.sort}, #{item.mainId}, #{item.materialId}, #{item.materialNumber}, #{item.materialName}, #{item.materialSpecification}, #{item.unitId}, #{item.unitName}, #{item.quantity}, #{item.price}, #{item.taxPrice}, #{item.isGift}, #{item.taxRate}, #{item.totalTax}, #{item.totalPrice}, #{item.totalTaxPrice}, #{item.needDate}, #{item.remark}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.status}, #{item.extendField})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.integration.mapper.IntegrateDataSourceMapper">
+
+    <resultMap type="IntegrateDataSource" id="IntegrateDataSourceResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="integrationMode"    column="integration_mode"    />
+        <result property="appId"    column="app_id"    />
+        <result property="token"    column="token"    />
+        <result property="secretKey"    column="secret_key"    />
+        <result property="bookCode"    column="book_code"    />
+        <result property="userName"    column="user_name"    />
+        <result property="password"    column="password"    />
+        <result property="sourceBillName"    column="source_bill_name"    />
+        <result property="sourceBillCode"    column="source_bill_code"    />
+        <result property="parameter9"    column="parameter9"    />
+        <result property="parameter8"    column="parameter8"    />
+        <result property="parameter7"    column="parameter7"    />
+        <result property="parameter6"    column="parameter6"    />
+        <result property="parameter5"    column="parameter5"    />
+        <result property="parameter4"    column="parameter4"    />
+        <result property="parameter3"    column="parameter3"    />
+        <result property="parameter2"    column="parameter2"    />
+        <result property="parameter1"    column="parameter1"    />
+        <result property="requestAddress"    column="request_address"    />
+        <result property="requestMethod"    column="request_method"    />
+        <result property="manufacturer"    column="manufacturer"    />
+        <result property="systemName"    column="system_name"    />
+        <result property="systemVersion"    column="system_version"    />
+        <result property="databaseType"    column="database_type"    />
+        <result property="sqlSentence"    column="sql_sentence"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="IntegrateDataSourceInteDataSourceFieldResult" type="IntegrateDataSource" extends="IntegrateDataSourceResult">
+        <collection property="inteDataSourceFieldList" notNullColumn="sub_id" javaType="java.util.List" resultMap="InteDataSourceFieldResult" />
+    </resultMap>
+
+    <resultMap type="InteDataSourceField" id="InteDataSourceFieldResult">
+        <result property="id"    column="sub_id"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="name"    column="sub_name"    />
+        <result property="field"    column="sub_field"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="status"    column="sub_status"    />
+    </resultMap>
+
+    <sql id="selectIntegrateDataSourceVo">
+        select id, number, name, ip_address, integration_mode, app_id, token, secret_key, book_code, user_name, password, source_bill_name, source_bill_code, parameter9, parameter8, parameter7, parameter6, parameter5, parameter4, parameter3, parameter2, parameter1, request_address, request_method, manufacturer, system_name, system_version, database_type, sql_sentence, status, remark, create_by, create_time, update_by, update_time from inte_data_source
+    </sql>
+
+    <select id="selectIntegrateDataSourceList" parameterType="IntegrateDataSource" resultMap="IntegrateDataSourceResult">
+        <include refid="selectIntegrateDataSourceVo"/>
+        <where>
+            <if test="number != null  and number != ''"> and number = #{number}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectIntegrateDataSourceById" parameterType="Long" resultMap="IntegrateDataSourceInteDataSourceFieldResult">
+        select a.id, a.number, a.name, a.ip_address, a.integration_mode, a.app_id, a.token, a.secret_key, a.book_code, a.user_name, a.password, a.source_bill_name, a.source_bill_code, a.parameter9, a.parameter8, a.parameter7, a.parameter6, a.parameter5, a.parameter4, a.parameter3, a.parameter2, a.parameter1, a.request_address, a.request_method, a.manufacturer, a.system_name, a.system_version, a.database_type, a.sql_sentence, a.status, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+ b.id as sub_id, b.main_id as sub_main_id, b.sort as sub_sort, b.name as sub_name, b.field as sub_field, b.remark as sub_remark, b.status as sub_status
+        from inte_data_source a
+        left join inte_data_source_field b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <insert id="insertIntegrateDataSource" parameterType="IntegrateDataSource" useGeneratedKeys="true" keyProperty="id">
+        insert into inte_data_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">number,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="ipAddress != null and ipAddress != ''">ip_address,</if>
+            <if test="integrationMode != null">integration_mode,</if>
+            <if test="appId != null">app_id,</if>
+            <if test="token != null">token,</if>
+            <if test="secretKey != null">secret_key,</if>
+            <if test="bookCode != null">book_code,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="sourceBillName != null and sourceBillName != ''">source_bill_name,</if>
+            <if test="sourceBillCode != null">source_bill_code,</if>
+            <if test="parameter9 != null">parameter9,</if>
+            <if test="parameter8 != null">parameter8,</if>
+            <if test="parameter7 != null">parameter7,</if>
+            <if test="parameter6 != null">parameter6,</if>
+            <if test="parameter5 != null">parameter5,</if>
+            <if test="parameter4 != null">parameter4,</if>
+            <if test="parameter3 != null">parameter3,</if>
+            <if test="parameter2 != null">parameter2,</if>
+            <if test="parameter1 != null">parameter1,</if>
+            <if test="requestAddress != null">request_address,</if>
+            <if test="requestMethod != null">request_method,</if>
+            <if test="manufacturer != null">manufacturer,</if>
+            <if test="systemName != null">system_name,</if>
+            <if test="systemVersion != null">system_version,</if>
+            <if test="databaseType != null">database_type,</if>
+            <if test="sqlSentence != null">sql_sentence,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="number != null">#{number},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="ipAddress != null and ipAddress != ''">#{ipAddress},</if>
+            <if test="integrationMode != null">#{integrationMode},</if>
+            <if test="appId != null">#{appId},</if>
+            <if test="token != null">#{token},</if>
+            <if test="secretKey != null">#{secretKey},</if>
+            <if test="bookCode != null">#{bookCode},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="password != null and password != ''">#{password},</if>
+            <if test="sourceBillName != null and sourceBillName != ''">#{sourceBillName},</if>
+            <if test="sourceBillCode != null">#{sourceBillCode},</if>
+            <if test="parameter9 != null">#{parameter9},</if>
+            <if test="parameter8 != null">#{parameter8},</if>
+            <if test="parameter7 != null">#{parameter7},</if>
+            <if test="parameter6 != null">#{parameter6},</if>
+            <if test="parameter5 != null">#{parameter5},</if>
+            <if test="parameter4 != null">#{parameter4},</if>
+            <if test="parameter3 != null">#{parameter3},</if>
+            <if test="parameter2 != null">#{parameter2},</if>
+            <if test="parameter1 != null">#{parameter1},</if>
+            <if test="requestAddress != null">#{requestAddress},</if>
+            <if test="requestMethod != null">#{requestMethod},</if>
+            <if test="manufacturer != null">#{manufacturer},</if>
+            <if test="systemName != null">#{systemName},</if>
+            <if test="systemVersion != null">#{systemVersion},</if>
+            <if test="databaseType != null">#{databaseType},</if>
+            <if test="sqlSentence != null">#{sqlSentence},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateIntegrateDataSource" parameterType="IntegrateDataSource">
+        update inte_data_source
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">number = #{number},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="ipAddress != null and ipAddress != ''">ip_address = #{ipAddress},</if>
+            <if test="integrationMode != null">integration_mode = #{integrationMode},</if>
+            <if test="appId != null">app_id = #{appId},</if>
+            <if test="token != null">token = #{token},</if>
+            <if test="secretKey != null">secret_key = #{secretKey},</if>
+            <if test="bookCode != null">book_code = #{bookCode},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="sourceBillName != null and sourceBillName != ''">source_bill_name = #{sourceBillName},</if>
+            <if test="sourceBillCode != null">source_bill_code = #{sourceBillCode},</if>
+            <if test="parameter9 != null">parameter9 = #{parameter9},</if>
+            <if test="parameter8 != null">parameter8 = #{parameter8},</if>
+            <if test="parameter7 != null">parameter7 = #{parameter7},</if>
+            <if test="parameter6 != null">parameter6 = #{parameter6},</if>
+            <if test="parameter5 != null">parameter5 = #{parameter5},</if>
+            <if test="parameter4 != null">parameter4 = #{parameter4},</if>
+            <if test="parameter3 != null">parameter3 = #{parameter3},</if>
+            <if test="parameter2 != null">parameter2 = #{parameter2},</if>
+            <if test="parameter1 != null">parameter1 = #{parameter1},</if>
+            <if test="requestAddress != null">request_address = #{requestAddress},</if>
+            <if test="requestMethod != null">request_method = #{requestMethod},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="systemName != null">system_name = #{systemName},</if>
+            <if test="systemVersion != null">system_version = #{systemVersion},</if>
+            <if test="databaseType != null">database_type = #{databaseType},</if>
+            <if test="sqlSentence != null">sql_sentence = #{sqlSentence},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteIntegrateDataSourceById" parameterType="Long">
+        delete from inte_data_source where id = #{id}
+    </delete>
+
+    <delete id="deleteIntegrateDataSourceByIds" parameterType="String">
+        delete from inte_data_source where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteInteDataSourceFieldByMainIds" parameterType="String">
+        delete from inte_data_source_field where main_id in
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteInteDataSourceFieldByMainId" parameterType="Long">
+        delete from inte_data_source_field where main_id = #{mainId}
+    </delete>
+
+    <insert id="batchInteDataSourceField">
+        insert into inte_data_source_field( id, main_id, sort, name, field, remark, status) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.mainId}, #{item.sort}, #{item.name}, #{item.field}, #{item.remark}, #{item.status})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.production.mapper.ReportMapper">
+
+    <select id="selectReportList" parameterType="Report"  resultType="Report">
+            select DISTINCT
+            pw.number workOrderNumber ,pwe.report_material_name materialName,
+            pwe.report_specification specification,pw.material_unit_name materialUnitName,
+                   pwe.report_quantity as quantity,
+            pw.plan_finish_date planFinishDate,pw.pro_status proStatus,pwe.remark workOrderRemark,
+                   pw.name workOrderName ,pwe.process_name,pwe.sort,pwe.qc_type,pw.batch_number,
+            pwe.process_id ,pwe.report_material_id materialId ,
+            prp.report_quantity as reportQuantity,
+                   prp.status as `status` ,prp.report_time,
+                   prp.id,prp.number,prp.work_order_entry_id,prp.report_user_id,
+                   prp.report_user_name,prp.report_channel,prp.qualified_quantity,
+                   prp.unqualified_quantity,prp.workshop_id,prp.workshop_name,
+                   prp.station_id,prp.station_name,prp.is_settle,prp.wages,
+                   prp.remark,
+                   prp.quality_status,prp.sn_array,so.customer_name ,pwe.extend_field
+            from pro_report prp
+           left join pro_workorder_entry pwe on pwe.id =prp.work_order_entry_id
+           left join pro_workorder pw on pw.id = pwe.workorder_id
+           LEFT JOIN sal_order_entry soe ON
+                pw.source_info like concat('{"saleOrderEntryId":[',soe.id,']}') or
+                pw.source_info like concat('%,',soe.id,',%' ) or
+                pw.source_info like concat('%,',soe.id,']}')or
+                pw.source_info like concat('{"saleOrderEntryId":[',soe.id,',%' )
+           left join sal_order so on so.id = soe.main_id
+            where 1=1
+        <if test="number != null  and number != ''"> and prp.number like concat('%', #{number}, '%')</if>
+        <if test="processName != null  and processName != ''"> and pwe.process_name like concat('%', #{processName}, '%')</if>
+        <if test="workOrderNumber != null  and workOrderNumber != ''"> and pw.number like concat('%', #{workOrderNumber}, '%')</if>
+        <if test="workOrderName != null  and workOrderName != ''"> and pw.name like concat('%', #{workOrderName}, '%')</if>
+        <if test="materialName != null  and materialName != ''"> and pwe.report_material_name like concat('%', #{materialName}, '%')</if>
+        <if test="reportUserName != null  and reportUserName != ''"> and prp.report_user_name like concat('%', #{reportUserName}, '%')</if>
+        <if test="reportChannel != null  and reportChannel != ''"> and prp.report_channel =#{reportChannel}</if>
+        <if test="workOrderEntryId != null  and workOrderEntryId != ''"> and prp.work_order_entry_id =#{workOrderEntryId}</if>
+        <if test="params.workOrderEntryIds != null  and params.workOrderEntryIds  != ''">
+            and prp.work_order_entry_id in (params.workOrderEntryIds)
+        </if>
+        <if test="params.ids != null  and params.ids  != ''">
+            and prp.id in (params.ids)
+        </if>
+        <if test="qualityStatus != null  and qualityStatus != ''"> and prp.quality_status =#{qualityStatus}</if>
+        <if test="status != null  and status != ''"> and prp.status =#{status}</if>
+        <if test="params.beginDate != null  and params.endDate != ''"> and report_time between #{params.beginDate} and #{params.endDate}</if>
+        <if test="params.reportTimeStart != null  and params.reportTimeEnd  != null">
+            and prp.report_time BETWEEN #{params.reportTimeStart} AND #{params.reportTimeEnd}
+        </if>
+        <if test="params.pageNum != null  and params.pageSize != ''">
+            order by prp.report_time desc
+            limit #{params.pageNum},#{params.pageSize}
+        </if>
+
+    </select>
+
+
+
+    <select id="selectReportListCount" parameterType="Report"  resultType="Integer">
+        select count(t.id) from
+        (select
+        DISTINCT
+        prp.id
+        from pro_report prp
+        left join pro_workorder_entry pwe on pwe.id =prp.work_order_entry_id
+        left join pro_workorder pw on pw.id = pwe.workorder_id
+        LEFT JOIN sal_order_entry soe ON
+            pw.source_info like concat('{"saleOrderEntryId":[',soe.id,']}') or
+            pw.source_info like concat('%,',soe.id,',%' ) or
+            pw.source_info like concat('%,',soe.id,']}')or
+            pw.source_info like concat('{"saleOrderEntryId":[',soe.id,',%' )
+        left join sal_order so on so.id = soe.main_id
+        where 1=1
+        <if test="number != null  and number != ''"> and prp.number like concat('%', #{number}, '%')</if>
+        <if test="processName != null  and processName != ''"> and pwe.process_name like concat('%', #{processName}, '%')</if>
+        <if test="workOrderNumber != null  and workOrderNumber != ''"> and pw.number like concat('%', #{workOrderNumber}, '%')</if>
+        <if test="workOrderName != null  and workOrderName != ''"> and pw.name like concat('%', #{workOrderName}, '%')</if>
+        <if test="materialName != null  and materialName != ''"> and pwe.report_material_name like concat('%', #{materialName}, '%')</if>
+        <if test="reportUserName != null  and reportUserName != ''"> and prp.report_user_name like concat('%', #{reportUserName}, '%')</if>
+        <if test="reportChannel != null  and reportChannel != ''"> and prp.report_channel =#{reportChannel}</if>
+        <if test="workOrderEntryId != null  and workOrderEntryId != ''"> and prp.work_order_entry_id =#{workOrderEntryId}</if>
+        <if test="params.workOrderEntryIds != null  and params.workOrderEntryIds  != ''">
+            and prp.work_order_entry_id in (params.workOrderEntryIds)
+        </if>
+        <if test="params.ids != null  and params.ids  != ''">
+            and prp.id in (params.ids)
+        </if>
+        <if test="qualityStatus != null  and qualityStatus != ''"> and prp.quality_status =#{qualityStatus}</if>
+        <if test="status != null  and status != ''"> and prp.status =#{status}</if>
+        <if test="params.reportTimeStart != null  and params.reportTimeEnd  != null">
+            and prp.report_time BETWEEN #{params.reportTimeStart} AND #{params.reportTimeEnd}
+        </if>
+         ) t
+
+    </select>
+
+    <delete id="deleteReportByIds" parameterType="String">
+        delete from pro_report where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

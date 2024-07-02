@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.warehouse.mapper.WarehouseMapper">
+
+    <delete id="deleteWarehouseById" parameterType="Long">
+        delete from wm_warehouse where id = #{id}
+    </delete>
+
+    <delete id="deleteWarehouseByIds" parameterType="String">
+        delete from wm_warehouse where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

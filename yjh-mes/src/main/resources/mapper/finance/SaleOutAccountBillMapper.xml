@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.finance.mapper.SaleOutAccountBillMapper">
+
+    <resultMap type="SaleOutAccountBill" id="SaleOutAccountBillResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="status"    column="status"    />
+        <result property="shipLocation"    column="ship_location"    />
+        <result property="method"    column="method"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="invoiceMark"    column="invoice_mark"    />
+        <result property="logisticsInfo"    column="logistics_info"    />
+        <result property="keeperId"    column="keeper_id"    />
+        <result property="keeperName"    column="keeper_name"    />
+        <result property="checker"    column="checker"    />
+        <result property="checkDate"    column="check_date"    />
+        <result property="outTime"    column="out_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="standardAmount"    column="standard_amount"    />
+        <result property="saleAmount"    column="sale_amount"    />
+        <result property="discountAmount"    column="discount_amount"    />
+        <result property="discountRate"    column="discount_rate"    />
+        <result property="saleOutNumber"    column="sale_out_number"    />
+        <result property="saleOutId"    column="sale_out_id"    />
+    </resultMap>
+
+    <resultMap id="SaleOutAccountBillSaleOutAccountEntryResult" type="SaleOutAccountBill" extends="SaleOutAccountBillResult">
+        <collection property="saleOutAccountEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="SaleOutAccountEntryResult" />
+    </resultMap>
+
+    <resultMap type="SaleOutAccountEntry" id="SaleOutAccountEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="materialNumber"    column="sub_material_number"    />
+        <result property="materialName"    column="sub_material_name"    />
+        <result property="specification"    column="sub_specification"    />
+        <result property="materialUnitId"    column="sub_material_unit_id"    />
+        <result property="materialUnitName"    column="sub_material_unit_name"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="deputyUnit"    column="sub_deputy_unit"    />
+        <result property="deputyUnitQuantity"    column="sub_deputy_unit_quantity"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="standardPrice"    column="sub_standard_price"    />
+        <result property="standardAmount"    column="sub_standard_amount"    />
+        <result property="salePrice"    column="sub_sale_price"    />
+        <result property="saleAmount"    column="sub_sale_amount"    />
+        <result property="discountAmount"    column="sub_discount_amount"    />
+        <result property="discountRate"    column="sub_discount_rate"    />
+        <result property="extendField"    column="sub_extend_field"    />
+        <association property="saleOutAccountBill"
+                     javaType="cn.sourceplan.finance.domain.SaleOutAccountBill" resultMap="SaleOutAccountBillResult">
+        </association>
+    </resultMap>
+
+    <sql id="selectSaleOutAccountBillVo">
+        select a.id, a.number, a.status, a.ship_location, a.method,
+               a.customer_id, a.customer_name, a.invoice_mark, a.logistics_info, a.keeper_id,
+               a.keeper_name, a.checker, a.check_date, a.out_time, a.remark,
+               a.create_by, a.create_time, a.update_by, a.update_time, a.standard_amount,
+               a.sale_amount, a.discount_amount, a.discount_rate, a.sale_out_number, a.sale_out_id,
+
+               b.id as sub_id, b.sort as sub_sort, b.main_id as sub_main_id, b.material_id as sub_material_id, b.material_number as sub_material_number,
+               b.material_name as sub_material_name, b.specification as sub_specification, b.material_unit_id as sub_material_unit_id, b.material_unit_name as sub_material_unit_name, b.quantity as sub_quantity,
+               b.deputy_unit as sub_deputy_unit, b.deputy_unit_quantity as sub_deputy_unit_quantity, b.remark as sub_remark, b.standard_price as sub_standard_price, b.standard_amount as sub_standard_amount,
+               b.sale_price as sub_sale_price, b.sale_amount as sub_sale_amount, b.discount_amount as sub_discount_amount, b.discount_rate as sub_discount_rate,
+               b.extend_field as sub_extend_field
+               </sql>
+
+    <select id="selectSaleOutAccountBillList" parameterType="SaleOutAccountBill" resultMap="SaleOutAccountEntryResult">
+        <include refid="selectSaleOutAccountBillVo"/>
+        from fm_sale_out_account_entry b
+        left join fm_sale_out_account_bill a  on a.id = b.main_id
+        <where>
+            <if test="number != null  and number != ''"> and number like concat('%', #{number}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="method != null  and method != ''"> and method = #{method}</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="invoiceMark != null  and invoiceMark != ''"> and invoice_mark = #{invoiceMark}</if>
+            <if test="params.beginOutTime != null and params.beginOutTime != '' and params.endOutTime != null and params.endOutTime != ''"> and out_time between #{params.beginOutTime} and #{params.endOutTime}</if>
+            <if test="saleOutNumber != null  and saleOutNumber != ''"> and sale_out_number like concat('%', #{saleOutNumber}, '%')</if>
+            <if test="shipLocation != null  and shipLocation != ''"> and ship_location like concat('%', #{shipLocation}, '%')</if>
+            <if test="params.specification != null  and params.specification != ''"> and b.specification like concat('%', #{params.specification}, '%')</if>
+            <if test="params.extendFieldJson != null  ">
+                <foreach collection="params.extendFieldJson.entrySet()" separator="" index="key" item="val">
+                    and JSON_EXTRACT(b.extend_field, '$.${key}')  like concat('%', '${val}' , '%')
+                </foreach>
+             </if>
+
+        </where>
+        order by a.out_time desc,a.sale_out_number asc
+    </select>
+
+    <select id="selectSaleOutAccountBillById" parameterType="Long" resultMap="SaleOutAccountBillSaleOutAccountEntryResult">
+        <include refid="selectSaleOutAccountBillVo"/>
+        from fm_sale_out_account_bill a
+        left join fm_sale_out_account_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+
+
+
+
+
+
+
+</mapper>

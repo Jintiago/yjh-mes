@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.production.mapper.WorkOrderMapper">
+
+    <resultMap type="WorkOrder" id="WorkOrderResult" >
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="sourceSystem"    column="source_system"    />
+        <result property="sourceInfo"    column="source_info"    />
+        <result property="batchNumber"    column="batch_number"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialNumber"    column="material_number"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialUnitId"    column="material_unit_id"    />
+        <result property="materialUnitName"    column="material_unit_name"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="beginProDate"    column="begin_pro_date"    />
+        <result property="planFinishDate"    column="plan_finish_date"    />
+        <result property="realFinishDate"    column="real_finish_date"    />
+        <result property="proStatus"    column="pro_status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
+        <result property="isPostpone"    column="is_postpone"    />
+        <result property="specification"    column="specification"    />
+        <result property="repairFlag"    column="repair_flag"    />
+        <result property="priority"    column="priority"    />
+        <result property="annex"    column="annex"    />
+        <result property="extendField"    column="extend_field"    />
+        <result property="customSort"    column="custom_sort"    />
+        <result property="routeId"    column="route_id"    />
+        <association property="workOrderEntryList"
+                     javaType="java.util.List"
+                     resultMap="WorkOrderEntryResult">
+        </association>
+    </resultMap>
+
+
+    <resultMap id="WorkOrderWorkOrderEntryResult" type="WorkOrder" extends="WorkOrderResult">
+        <collection property="workOrderEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="WorkOrderEntryResult" />
+    </resultMap>
+
+    <resultMap type="WorkOrderEntry" id="WorkOrderEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="workshopId"    column="sub_workshop_id"    />
+        <result property="workshopName"    column="sub_workshop_name"    />
+        <result property="stationId"    column="sub_station_id"    />
+        <result property="stationName"    column="sub_station_name"    />
+        <result property="workorderId"    column="sub_workorder_id"    />
+        <result property="processId"    column="sub_process_id"    />
+        <result property="processName"    column="sub_process_name"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="qcType"    column="sub_qc_type"    />
+        <result property="firstQcQuantity"    column="sub_first_qc_quantity"    />
+        <result property="pickMaterialId"    column="sub_pick_material_id"    />
+        <result property="pickSpecification"    column="sub_pick_specification"    />
+        <result property="pickMaterialName"    column="sub_pick_material_name"    />
+        <result property="pickQuantity"    column="sub_pick_quantity"    />
+        <result property="inWarehouseId"    column="sub_in_warehouse_id"    />
+        <result property="inWarehouseName"    column="sub_in_warehouse_name"    />
+        <result property="outWarehouseId"    column="sub_out_warehouse_id"    />
+        <result property="outWarehouseName"    column="sub_out_warehouse_name"    />
+        <result property="extendField"    column="sub_extend_field"    />
+        <result property="machineId"    column="sub_machine_id"    />
+        <result property="machineName"    column="sub_machine_name"    />
+        <result property="type"    column="sub_type"    />
+        <result property="reportMaterialId"    column="sub_report_material_id"    />
+        <result property="reportSpecification"    column="sub_report_specification"    />
+        <result property="reportMaterialName"    column="sub_report_material_name"    />
+        <result property="reportQuantity"    column="sub_report_quantity"    />
+        <result property="status"    column="sub_status"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="processSort"    column="sub_process_sort"    />
+    </resultMap>
+
+    <sql id="selectWorkOrderVo">
+        select
+            @rowNum:=@rowNum+1 as rowNum,
+            a.id, a.number, a.name, a.source_type, a.source_system,
+            a.source_info, a.batch_number, a.material_id, a.material_number, a.material_name,
+            a.material_unit_id, a.material_unit_name, a.quantity, a.begin_pro_date, a.plan_finish_date,
+            a.real_finish_date, a.pro_status, a.remark, a.create_by, a.create_time,
+            a.update_by, a.update_time, a.status,a.specification,a.is_postpone,a.priority,a.annex,
+            a.repair_flag,a.extend_field,a.custom_sort,a.route_id,
+            b.id as sub_id, b.workshop_id as sub_workshop_id, b.workshop_name as sub_workshop_name, b.station_id as sub_station_id, b.station_name as sub_station_name,
+            b.workorder_id as sub_workorder_id, b.process_id as sub_process_id, b.process_name as sub_process_name, b.sort as sub_sort ,b.qc_type as sub_qc_type,
+            b.first_qc_quantity as sub_first_qc_quantity,
+            b.pick_material_id as sub_pick_material_id,
+            b.pick_specification as sub_pick_specification,
+            b.pick_material_name as sub_pick_material_name,
+            b.pick_quantity as sub_pick_quantity,
+            b.in_warehouse_id as sub_in_warehouse_id,
+            b.in_warehouse_name as sub_in_warehouse_name,
+            b.out_warehouse_id as sub_out_warehouse_id,
+            b.out_warehouse_name as sub_out_warehouse_name,
+            b.extend_field as sub_extend_field,
+            b.machine_id as sub_machine_id ,
+            b.machine_name as sub_machine_name,
+            b.type as sub_type,
+            b.report_material_id as sub_report_material_id,
+            b.report_specification as sub_report_specification,
+            b.report_material_name as sub_report_material_name,
+            b.report_quantity as sub_report_quantity,
+            b.`status` as sub_status,
+            b.remark as sub_remark,
+            b.process_sort as sub_process_sort
+
+    </sql>
+
+    <select id="selectWorkOrderList" parameterType="WorkOrder" resultMap="WorkOrderResult">
+        <include refid="selectWorkOrderVo"/>
+        from
+            ( select * from pro_workorder
+        <where>
+            <if test="number != null  and number != ''"> and `number` like concat('%', #{number}, '%')</if>
+            <if test="batchNumber != null  and batchNumber != ''"> and batch_number like concat('%', #{batchNumber}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialName != null "> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialUnitId != null "> and material_unit_id = #{materialUnitId}</if>
+            <if test="beginProDate != null "> and begin_pro_date = #{beginProDate}</if>
+            <if test="planFinishDate != null "> and plan_finish_date = #{planFinishDate}</if>
+            <if test="realFinishDate != null "> and real_finish_date = #{realFinishDate}</if>
+            <if test="proStatus != null  and proStatus != ''"> and pro_status in (${proStatus}) </if>
+            <if test="status != null  and status != ''"> and `status` = #{status}</if>
+            <if test="isPostpone != null  and isPostpone != ''"> and is_postpone = #{isPostpone}</if>
+            <if test="sourceInfo != null  and sourceInfo != ''"> ${sourceInfo}</if>
+        </where>
+            ) a
+        left join pro_workorder_entry b on b.workorder_id = a.id
+        where 1=1 ${params.entryWhereSql}
+        order by
+        <if test="params.sortSql != null  and params.sortSql != ''"> ${params.sortSql}</if>
+                a.pro_status ASC,
+                 a.priority asc,
+                 a.plan_finish_date asc,
+                 a.`number` desc,
+                a.material_id asc
+        <if test="params.pageNum != null  and params.pageSize != null">
+            limit #{params.pageNum},#{params.pageSize}
+        </if>
+    </select>
+
+    <select id="selectWorkOrderById" parameterType="Long" resultMap="WorkOrderWorkOrderEntryResult">
+        <include refid="selectWorkOrderVo"/>
+        from pro_workorder a
+        left join pro_workorder_entry b on b.workorder_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <select id="selectWorkOrderByEntryId" parameterType="Long" resultMap="WorkOrderWorkOrderEntryResult">
+        <include refid="selectWorkOrderVo"/>
+        from pro_workorder_entry b
+        left join pro_workorder a on a.id = b.workorder_id
+        where b.id =#{id}
+    </select>
+
+    <delete id="deleteWorkOrderById" parameterType="Long">
+        delete from pro_workorder where id = #{id}
+    </delete>
+
+    <delete id="deleteWorkOrderByIds" parameterType="String">
+        delete from pro_workorder where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWorkOrderEntryByWorkorderIds" parameterType="String">
+        delete from pro_workorder_entry where workorder_id in
+        <foreach item="workorderId" collection="array" open="(" separator="," close=")">
+            #{workorderId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWorkOrderEntryByWorkorderId" parameterType="Long">
+        delete from pro_workorder_entry where workorder_id = #{workorderId}
+    </delete>
+
+    <update id="updateProStatus" >
+        update pro_workorder set pro_status = #{proStatus} where id in( ${ids} )
+    </update>
+
+    <select id="selectWorkOrderListForMobile" parameterType="Map" resultMap="WorkOrderResult">
+        <include refid="selectWorkOrderVo"/>
+        from
+        pro_workorder_entry b
+        left join pro_workorder a on a.id = b.workorder_id
+        where 1=1 ${map.mainWhereSq} ${map.entryWhereSql}
+
+    </select>
+
+    <select id="selectWorkOrderCount" parameterType="String" resultType="Integer">
+        select count(1) from pro_workorder where ${whereSql}
+
+    </select>
+
+    <update id="updateCustomSort" parameterType="WorkOrder">
+
+        update pro_workorder set custom_sort =#{workOrder.customSort} where id =#{workOrder.id}
+
+    </update>
+</mapper>

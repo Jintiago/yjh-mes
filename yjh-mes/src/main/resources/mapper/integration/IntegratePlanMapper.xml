@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.integration.mapper.IntegratePlanMapper">
+
+    <resultMap type="IntegratePlan" id="IntegratePlanResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="dataSourceId"    column="data_source_id"    />
+        <result property="dataSourceName"    column="data_source_name"    />
+        <result property="souceBill"    column="souce_bill"    />
+        <result property="targetBill"    column="target_bill"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="IntegratePlanIntePlanFieldResult" type="IntegratePlan" extends="IntegratePlanResult">
+        <collection property="intePlanFieldList" notNullColumn="sub_id" javaType="java.util.List" resultMap="IntePlanFieldResult" />
+    </resultMap>
+
+    <resultMap type="IntePlanField" id="IntePlanFieldResult">
+        <result property="id"    column="sub_id"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mesName"    column="sub_mes_name"    />
+        <result property="mesField"    column="sub_mes_field"    />
+        <result property="souceName"    column="sub_souce_name"    />
+        <result property="souceField"    column="sub_souce_field"    />
+        <result property="isQuery"    column="sub_isQuery"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="status"    column="sub_status"    />
+    </resultMap>
+
+    <sql id="selectIntegratePlanVo">
+        select id, number, name, data_source_id, data_source_name, souce_bill, target_bill, status, remark, create_by, create_time, update_by, update_time from inte_plan
+    </sql>
+
+    <select id="selectIntegratePlanList" parameterType="IntegratePlan" resultMap="IntegratePlanResult">
+        <include refid="selectIntegratePlanVo"/>
+        <where>
+            <if test="targetBill != null  and targetBill != ''"> and target_bill =#{targetBill}</if>
+        </where>
+    </select>
+
+    <select id="selectIntegratePlanById" parameterType="Long" resultMap="IntegratePlanIntePlanFieldResult">
+        select a.id, a.number, a.name, a.data_source_id, a.data_source_name, a.souce_bill, a.target_bill, a.status, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+ b.id as sub_id, b.main_id as sub_main_id, b.sort as sub_sort, b.mes_name as sub_mes_name, b.mes_field as sub_mes_field, b.souce_name as sub_souce_name, b.souce_field as sub_souce_field, b.isQuery as sub_isQuery, b.remark as sub_remark, b.status as sub_status
+        from inte_plan a
+        left join inte_plan_field b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <insert id="insertIntegratePlan" parameterType="IntegratePlan" useGeneratedKeys="true" keyProperty="id">
+        insert into inte_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">number,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="dataSourceId != null">data_source_id,</if>
+            <if test="dataSourceName != null and dataSourceName != ''">data_source_name,</if>
+            <if test="souceBill != null and souceBill != ''">souce_bill,</if>
+            <if test="targetBill != null and targetBill != ''">target_bill,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="number != null">#{number},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="dataSourceId != null">#{dataSourceId},</if>
+            <if test="dataSourceName != null and dataSourceName != ''">#{dataSourceName},</if>
+            <if test="souceBill != null and souceBill != ''">#{souceBill},</if>
+            <if test="targetBill != null and targetBill != ''">#{targetBill},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateIntegratePlan" parameterType="IntegratePlan">
+        update inte_plan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">number = #{number},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="dataSourceId != null">data_source_id = #{dataSourceId},</if>
+            <if test="dataSourceName != null and dataSourceName != ''">data_source_name = #{dataSourceName},</if>
+            <if test="souceBill != null and souceBill != ''">souce_bill = #{souceBill},</if>
+            <if test="targetBill != null and targetBill != ''">target_bill = #{targetBill},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteIntegratePlanById" parameterType="Long">
+        delete from inte_plan where id = #{id}
+    </delete>
+
+    <delete id="deleteIntegratePlanByIds" parameterType="String">
+        delete from inte_plan where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteIntePlanFieldByMainIds" parameterType="String">
+        delete from inte_plan_field where main_id in
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteIntePlanFieldByMainId" parameterType="Long">
+        delete from inte_plan_field where main_id = #{mainId}
+    </delete>
+
+    <insert id="batchIntePlanField">
+        insert into inte_plan_field( id, main_id, sort, mes_name, mes_field, souce_name, souce_field, isQuery, remark, status) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.mainId}, #{item.sort}, #{item.mesName}, #{item.mesField}, #{item.souceName}, #{item.souceField}, #{item.isQuery}, #{item.remark}, #{item.status})
+        </foreach>
+    </insert>
+</mapper>

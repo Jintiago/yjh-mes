@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.sale.mapper.SalOrderMapper">
+
+
+    <resultMap type="SalOrder" id="SalOrderResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="status"    column="status"    />
+        <result property="sourceInfo"    column="source_info"    />
+        <result property="logisticsNumber"    column="logistics_number"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="currency"    column="currency"    />
+        <result property="saleDate"    column="sale_date"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="consignee"    column="consignee"    />
+        <result property="consigneePhone"    column="consignee_phone"    />
+        <result property="consigneeDepartment"    column="consignee_department"    />
+        <result property="area"    column="area"    />
+        <result property="address"    column="address"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="annex"    column="annex"    />
+        <result property="checker"    column="checker"    />
+        <result property="invoiceMark"    column="invoice_mark"    />
+    </resultMap>
+
+    <resultMap id="SalOrderSalOrderEntryResult" type="SalOrder" extends="SalOrderResult">
+        <collection property="salOrderEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="SalOrderEntryResult" />
+    </resultMap>
+
+    <resultMap type="SalOrderEntry" id="SalOrderEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="materialNumber"    column="sub_material_number"    />
+        <result property="materialName"    column="sub_material_name"    />
+        <result property="materialSpecification"    column="sub_material_specification"    />
+        <result property="materialClass"    column="sub_material_class"    />
+        <result property="materialType"    column="sub_material_type"    />
+        <result property="unitId"    column="sub_unit_id"    />
+        <result property="unitName"    column="sub_unit_name"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="price"    column="sub_price"    />
+        <result property="taxPrice"    column="sub_tax_price"    />
+        <result property="isGift"    column="sub_is_gift"    />
+        <result property="taxRate"    column="sub_tax_rate"    />
+        <result property="totalTax"    column="sub_total_tax"    />
+        <result property="totalPrice"    column="sub_total_price"    />
+        <result property="totalTaxPrice"    column="sub_total_tax_price"    />
+        <result property="needDate"    column="sub_need_date"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="extendField"    column="sub_extend_field"    />
+        <result property="deliveryDate"    column="sub_delivery_date"    />
+        <result property="status"    column="sub_status"    />
+        <result property="discount"    column="sub_discount"    />
+        <association property="salOrder"
+                     javaType="cn.sourceplan.sale.domain.SalOrder" resultMap="SalOrderResult">
+        </association>
+    </resultMap>
+
+    <!--查询主子表所有字段，a为主表，b为子表-->
+    <sql id="selectSalOrderVo">
+        select a.id, a.number, a.status, a.source_info, a.logistics_number, a.dept_id, a.dept_name, a.user_id,
+               a.user_name, a.currency, a.sale_date, a.customer_id, a.customer_name, a.consignee, a.consignee_phone,
+               a.area, a.address, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+               a.annex,a.checker,a.consignee_department,a.invoice_mark,
+               b.id as sub_id, b.sort as sub_sort, b.main_id as sub_main_id, b.material_id as sub_material_id,
+               b.material_number as sub_material_number,
+               b.material_name as sub_material_name, b.material_specification as sub_material_specification, b.material_class as sub_material_class,
+               b.material_type as sub_material_type, b.unit_id as sub_unit_id, b.unit_name as sub_unit_name, b.quantity as sub_quantity, b.price as sub_price,
+               b.tax_price as sub_tax_price, b.is_gift as sub_is_gift, b.tax_rate as sub_tax_rate, b.total_tax as sub_total_tax, b.total_price as sub_total_price,
+               b.total_tax_price as sub_total_tax_price, b.need_date as sub_need_date, b.remark as sub_remark,
+               b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time,
+               b.extend_field as sub_extend_field,b.delivery_date as sub_delivery_date,b.status as sub_status,
+               b.discount as sub_discount
+    </sql>
+
+    <!--根据子表或主表过滤条件查所有主子表信息-->
+    <select id="selectSalOrderList" parameterType="SalOrder" resultMap="SalOrderEntryResult">
+        <include refid="selectSalOrderVo"/>
+        FROM
+        sal_order_entry b
+        LEFT JOIN sal_order a ON a.id = b.main_id
+        <where>
+            <if test="number != null  and number != ''"> and a.number like concat('%', #{number}, '%')</if>
+            <if test="status != null  and status != ''"> and b.status in (${status})</if>
+            <if test="logisticsNumber != null  and logisticsNumber != ''"> and a.logistics_number like concat('%', #{logisticsNumber}, '%')</if>
+            <if test="deptId != null  and deptId != ''"> and a.dept_id =#{deptId}</if>
+            <if test="userName != null  and userName != ''"> and a.user_name like concat('%', #{userName}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and a.customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="saleDateQuery != null ">
+             and a.sale_date between  #{params.saleDateStart} and #{params.saleDateEnd}
+            </if>
+            <if test="deliveryDateQuery != null ">
+                and b.delivery_date between  #{params.deliveryDateStart} and #{params.deliveryDateEnd}
+            </if>
+            <if test="params.containsKey('materialName') ">
+                and b.material_name like concat('%', #{params.materialName}, '%')
+            </if>
+            <if test="params.containsKey('ids') ">
+                and a.id in ( ${params.ids} )
+            </if>
+            <if test="params.containsKey('entryIds') ">
+                and b.id in ( ${params.entryIds} )
+            </if>
+        </where>
+        order by a.number desc,b.material_number asc
+    </select>
+
+    <!--根据主表id查子表-->
+    <select id="selectSalOrderById" parameterType="Long" resultMap="SalOrderSalOrderEntryResult">
+        <include refid="selectSalOrderVo" />
+        from sal_order a
+        left join sal_order_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <delete id="deleteSalOrderById" parameterType="Long">
+        delete from sal_order where id = #{id}
+    </delete>
+
+    <delete id="deleteSalOrderByIds" parameterType="String">
+        delete from sal_order where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSalOrderEntryByMainIds" parameterType="String">
+        delete from sal_order_entry where main_id in
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSalOrderEntryByMainId" parameterType="Long">
+        delete from sal_order_entry where main_id = #{mainId}
+    </delete>
+
+    <!-- 查询已发货数量 -->
+    <select id="selectSaleOutQuantity" parameterType="Long" resultType="Float">
+        select SUM(quantity) from
+            wm_sale_out_entry soe
+                left join wm_sale_out so on so.id = soe.main_id
+        where so.`status` ='A' and soe.sale_order_entry_id = #{orderEntryId}
+    </select>
+
+</mapper>

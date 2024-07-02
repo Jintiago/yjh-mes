@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.MaterialClassMapper">
+
+    <resultMap type="MaterialClass" id="MaterialClassResult">
+        <result property="id"    column="id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="name"    column="name"    />
+        <result property="sort"    column="sort"    />
+    </resultMap>
+
+    <sql id="selectMaterialClassVo">
+        select id, parent_id, name, sort from md_material_class
+    </sql>
+
+    <select id="selectMaterialClassList" parameterType="MaterialClass" resultMap="MaterialClassResult">
+        <include refid="selectMaterialClassVo"/>
+        <where>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="sort != null "> and sort = #{sort}</if>
+        </where>
+        order by sort asc
+    </select>
+
+    <select id="selectMaterialClassById" parameterType="Long" resultMap="MaterialClassResult">
+        <include refid="selectMaterialClassVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMaterialClass" parameterType="MaterialClass" useGeneratedKeys="true" keyProperty="id">
+        insert into md_material_class
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">parent_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="sort != null">sort,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">#{parentId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="sort != null">#{sort},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMaterialClass" parameterType="MaterialClass">
+        update md_material_class
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="sort != null">sort = #{sort},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMaterialClassById" parameterType="Long">
+        delete from md_material_class where id = #{id}
+    </delete>
+
+    <delete id="deleteMaterialClassByIds" parameterType="String">
+        delete from md_material_class where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.warehouse.mapper.SaleOutMapper">
+
+    <resultMap type="SaleOut" id="SaleOutResult">
+        <result property="id"    column="id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="logisticsInfo"    column="logistics_info"    />
+        <result property="invoiceMark"    column="invoice_mark"    />
+        <result property="method"    column="method"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="shipLocation"    column="ship_location"    />
+        <result property="number"    column="number"    />
+        <result property="workshopId"    column="workshop_id"    />
+        <result property="workshopName"    column="workshop_name"    />
+        <result property="warehouseId"    column="warehouse_id"    />
+        <result property="warehouseNumber"    column="warehouse_number"    />
+        <result property="warehouseName"    column="warehouse_name"    />
+        <result property="regionId"    column="region_id"    />
+        <result property="regionNumber"    column="region_number"    />
+        <result property="regionName"    column="region_name"    />
+        <result property="areaId"    column="area_id"    />
+        <result property="areaNumber"    column="area_number"    />
+        <result property="areaName"    column="area_name"    />
+        <result property="keeperId"    column="keeper_id"    />
+        <result property="keeperName"    column="keeper_name"    />
+        <result property="outTime"    column="out_time"    />
+        <result property="checker"    column="checker"    />
+        <result property="checkDate"    column="check_date"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="snArray"    column="sn_array"    />
+        <result property="totalAmount"    column="total_amount"    />
+    </resultMap>
+
+    <resultMap id="SaleOutSaleOutEntryResult" type="SaleOut" extends="SaleOutResult">
+        <collection property="saleOutEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="SaleOutEntryResult" />
+    </resultMap>
+
+    <resultMap type="SaleOutEntry" id="SaleOutEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="materialNumber"    column="sub_material_number"    />
+        <result property="materialName"    column="sub_material_name"    />
+        <result property="specification"    column="sub_specification"    />
+        <result property="materialUnitId"    column="sub_material_unit_id"    />
+        <result property="materialUnitName"    column="sub_material_unit_name"    />
+        <result property="quantity"    column="sub_quantity"    />
+        <result property="batchNumber"    column="sub_batch_number"    />
+        <result property="warehouseId"    column="sub_warehouse_id"    />
+        <result property="warehouseNumber"    column="sub_warehouse_number"    />
+        <result property="warehouseName"    column="sub_warehouse_name"    />
+        <result property="regionId"    column="sub_region_id"    />
+        <result property="regionNumber"    column="sub_region_number"    />
+        <result property="regionName"    column="sub_region_name"    />
+        <result property="areaId"    column="sub_area_id"    />
+        <result property="areaNumber"    column="sub_area_number"    />
+        <result property="areaName"    column="sub_area_name"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="saleOrderEntryId"    column="sub_sale_order_entry_id"    />
+        <result property="unitCost"    column="sub_unit_cost"    />
+        <result property="cost"    column="sub_cost"    />
+        <result property="deputyUnit"    column="sub_deputy_unit"    />
+        <result property="extendField"    column="sub_extend_field"    />
+        <result property="deputyUnitQuantity"    column="sub_deputy_unit_quantity"    />
+        <result property="amount"    column="sub_amount"    />
+        <result property="price"    column="sub_price"    />
+        <association property="saleOut"
+                     javaType="cn.sourceplan.warehouse.domain.SaleOut" resultMap="SaleOutResult">
+        </association>
+    </resultMap>
+
+    <sql id="selectSaleOutVo">
+        select a.id, a.customer_name, a.logistics_info, a.invoice_mark, a.method,
+               a.customer_id, a.ship_location, a.number, a.workshop_id, a.workshop_name,
+               a.warehouse_id, a.warehouse_number, a.warehouse_name, a.region_id,
+               a.region_number, a.region_name, a.area_id, a.area_number, a.area_name,
+               a.keeper_id, a.keeper_name, a.out_time, a.checker, a.check_date,
+               a.status, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+               a.sn_array,a.total_amount,
+               b.id as sub_id, b.sort as sub_sort, b.main_id as sub_main_id,
+               b.material_id as sub_material_id, b.material_number as sub_material_number,
+               b.material_name as sub_material_name, b.specification as sub_specification,
+               b.material_unit_id as sub_material_unit_id,
+               b.material_unit_name as sub_material_unit_name, b.quantity as sub_quantity,
+               b.batch_number as sub_batch_number, b.warehouse_id as sub_warehouse_id,
+               b.warehouse_number as sub_warehouse_number, b.warehouse_name as sub_warehouse_name,
+               b.region_id as sub_region_id, b.region_number as sub_region_number,
+               b.region_name as sub_region_name, b.area_id as sub_area_id,
+               b.area_number as sub_area_number, b.area_name as sub_area_name,
+               b.create_by as sub_create_by, b.create_time as sub_create_time,
+               b.update_by as sub_update_by, b.update_time as sub_update_time,
+               b.remark as sub_remark, b.sale_order_entry_id as sub_sale_order_entry_id,
+               b.unit_cost as sub_unit_cost, b.cost as sub_cost, b.deputy_unit as sub_deputy_unit,
+               b.extend_field as sub_extend_field,
+               b.deputy_unit_quantity as sub_deputy_unit_quantity,
+               b.price as sub_price,b.amount as sub_amount
+    </sql>
+
+    <select id="selectSaleOutList" parameterType="SaleOut" resultMap="SaleOutEntryResult">
+        <include refid="selectSaleOutVo"/>
+        from wm_sale_out_entry b
+        left join  wm_sale_out a on  a.id =b.main_id
+        <where>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="method != null  and method != ''"> and a.method = #{method}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="number != null  and number != ''"> and a.number  like concat('%', #{number}, '%')</if>
+            <if test="workshopId != null "> and a.workshop_id = #{workshopId}</if>
+            <if test="workshopName != null  and workshopName != ''"> and a.workshop_name like concat('%', #{workshopName}, '%')</if>
+            <if test="warehouseId != null "> and a.warehouse_id = #{warehouseId}</if>
+            <if test="warehouseName != null  and warehouseName != ''"> and a.warehouse_name like concat('%', #{warehouseName}, '%')</if>
+            <if test="params.beginOutTime != null and params.beginOutTime != '' and params.endOutTime != null and params.endOutTime != ''"> and a.out_time between #{params.beginOutTime} and #{params.endOutTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="outTimeQuery != null ">
+                and a.out_time between  #{params.outTimeStart} and #{params.outTimeEnd}
+            </if>
+        </where>
+        order by a.number desc
+    </select>
+
+    <select id="selectSaleOutById" parameterType="Long" resultMap="SaleOutSaleOutEntryResult">
+        <include refid="selectSaleOutVo"/>
+        from wm_sale_out a
+        left join wm_sale_out_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <delete id="deleteSaleOutById" parameterType="Long">
+        delete from wm_sale_out where id = #{id}
+    </delete>
+
+    <delete id="deleteSaleOutByIds" parameterType="String">
+        delete from wm_sale_out where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSaleOutEntryByMainIds" parameterType="String">
+        delete from wm_sale_out_entry where main_id in
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSaleOutEntryByMainId" parameterType="Long">
+        delete from wm_sale_out_entry where main_id = #{mainId}
+    </delete>
+
+
+</mapper>

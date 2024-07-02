@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.common.mapper.SysCodeRuleMapper">
+
+    <resultMap type="SysCodeRule" id="SysCodeRuleResult">
+        <result property="id"    column="id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="basicDomain"    column="basic_domain"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <resultMap id="SysCodeRuleSysCodeRuleEntryResult" type="SysCodeRule" extends="SysCodeRuleResult">
+        <collection property="sysCodeRuleEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="SysCodeRuleEntryResult" />
+    </resultMap>
+
+    <resultMap type="SysCodeRuleEntry" id="SysCodeRuleEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="ruleId"    column="sub_rule_id"    />
+        <result property="sort"    column="sub_sort"    />
+        <result property="typeId"    column="sub_type_id"    />
+        <result property="lengthFlow"    column="sub_length_flow"    />
+        <result property="maxFlow"    column="sub_max_flow"    />
+        <result property="dateFormat"    column="sub_date_format"    />
+        <result property="constantChar"    column="sub_constant_char"    />
+        <result property="elementSourceTable"    column="sub_element_source_table"    />
+        <result property="sourceAttribute"    column="sub_source_attribute"    />
+        <result property="sourceValue"    column="sub_source_value"    />
+        <result property="codeCover"    column="sub_code_cover"    />
+        <result property="maxDate"    column="sub_max_date"    />
+    </resultMap>
+
+    <select id="selectSysCodeRuleById" parameterType="Long" resultMap="SysCodeRuleSysCodeRuleEntryResult">
+        select
+            a.id, a.remark, a.create_by, a.create_time, a.update_by,
+            a.update_time, a.number, a.name, a.basic_domain, a.status,
+            b.id as sub_id, b.rule_id as sub_rule_id, b.sort as sub_sort, b.type_id as sub_type_id, b.length_flow as sub_length_flow,
+            b.max_flow as sub_max_flow,b.date_format as sub_date_format,b.constant_char as sub_constant_char,b.element_source_table as sub_element_source_table,
+            b.source_attribute as sub_source_attribute, b.source_value as sub_source_value,b.code_cover as sub_code_cover,
+            b.max_date as sub_max_date
+        from sys_code_rule a
+        left join sys_code_rule_entry b on b.rule_id = a.id
+        where a.id = #{id}
+    </select>
+
+    <delete id="deleteSysCodeRuleEntryByRuleIds" parameterType="String">
+        delete from sys_code_rule_entry where rule_id in
+        <foreach item="ruleId" collection="array" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysCodeRuleEntryByRuleId" parameterType="Long">
+        delete from sys_code_rule_entry where rule_id = #{ruleId}
+    </delete>
+
+</mapper>

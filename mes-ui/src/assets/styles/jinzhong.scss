@@ -1,0 +1,16 @@
+
+.jz-compact-form.el-form .el-form-item {
+  margin-bottom: 5px ;
+}
+.el-table .cell{
+  padding: 4px;
+  margin-bottom: 0px;
+}
+.el-table--enable-row-hover .el-table__body tr:hover>td{
+  background-color: transparent !important;
+}
+/* 用来设置当前页面element全局table 选中某行时的背景色*/
+.el-table__body tr.current-row>td{
+  background-color: #f19944 !important;
+  /* color: #f19944; */  /* 设置文字颜色，可以选择不设置 */
+}

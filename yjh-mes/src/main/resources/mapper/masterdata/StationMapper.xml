@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.StationMapper">
+
+    <resultMap type="Station" id="StationResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="workshopId"    column="workshop_id"    />
+        <result property="workshopName"    column="workshop_name"    />
+        <result property="processIds"    column="process_ids"    />
+        <result property="machineIds"    column="machine_ids"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectStationVo">
+        select id, number, name, workshop_id, workshop_name, process_ids, machine_ids, status, remark, create_by, create_time, update_by, update_time from md_station
+    </sql>
+
+    <select id="selectStationList" parameterType="Station" resultMap="StationResult">
+        <include refid="selectStationVo"/>
+        <where>
+            <if test="number != null  and number != ''"> and number like concat('%', #{number}, '%')</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="workshopId != null "> and workshop_id = #{workshopId}</if>
+            <if test="workshopName != null  and workshopName != ''"> and workshop_name like concat('%', #{workshopName}, '%')</if>
+            <if test="processIds != null  and processIds != ''"> and process_ids like concat('%', #{processIds}, '%')</if>
+            <if test="machineIds != null  and machineIds != ''"> and machine_ids = #{machineIds}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+        order  by workshop_id asc
+    </select>
+
+    <delete id="deleteStationById" parameterType="Long">
+        delete from md_station where id = #{id}
+    </delete>
+
+    <delete id="deleteStationByIds" parameterType="String">
+        delete from md_station where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

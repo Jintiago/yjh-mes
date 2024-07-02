@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.quality.mapper.ReasonMapper">
+
+    <resultMap type="Reason" id="ReasonResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="qcReasonClass"    column="qc_reason_class"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectReasonVo">
+        select id, number, name, type, qc_reason_class, status, remark, create_by, create_time, update_by, update_time from qc_reason
+    </sql>
+
+    <select id="selectReasonList" parameterType="Reason" resultMap="ReasonResult">
+        <include refid="selectReasonVo"/>
+        <where>
+            <if test="number != null  and number != ''"> and number like concat('%', #{number}, '%')</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="qcReasonClass != null  and qcReasonClass != ''"> and qc_reason_class = #{qcReasonClass}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectReasonById" parameterType="Long" resultMap="ReasonResult">
+        <include refid="selectReasonVo"/>
+        where id = #{id}
+    </select>
+
+
+
+
+    <delete id="deleteReasonById" parameterType="Long">
+        delete from qc_reason where id = #{id}
+    </delete>
+
+    <delete id="deleteReasonByIds" parameterType="String">
+        delete from qc_reason where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

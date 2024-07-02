@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.masterdata.mapper.WorkshopMapper">
+
+    <delete id="deleteWorkshopById" parameterType="Long">
+        delete from md_workshop where id = #{id}
+    </delete>
+
+    <delete id="deleteWorkshopByIds" parameterType="String">
+        delete from md_workshop where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

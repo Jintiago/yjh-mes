@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.quality.mapper.QualityLevelMapper">
+
+    <resultMap type="QualityLevel" id="QualityLevelResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQualityLevelVo">
+        select id, number, name, type, status, remark, create_by, create_time, update_by, update_time from qc_quality_level
+    </sql>
+
+    <select id="selectQualityLevelList" parameterType="QualityLevel" resultMap="QualityLevelResult">
+        <include refid="selectQualityLevelVo"/>
+        <where>
+            <if test="number != null  and number != ''"> and number like concat('%', #{number}, '%')</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectQualityLevelById" parameterType="Long" resultMap="QualityLevelResult">
+        <include refid="selectQualityLevelVo"/>
+        where id = #{id}
+    </select>
+
+    <update id="updateQualityLevel" parameterType="QualityLevel">
+        update qc_quality_level
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">number = #{number},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQualityLevelById" parameterType="Long">
+        delete from qc_quality_level where id = #{id}
+    </delete>
+
+    <delete id="deleteQualityLevelByIds" parameterType="String">
+        delete from qc_quality_level where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

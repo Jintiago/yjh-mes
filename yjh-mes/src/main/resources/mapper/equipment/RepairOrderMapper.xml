@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.equipment.mapper.RepairOrderMapper">
+
+    <resultMap type="RepairOrder" id="RepairOrderResult">
+        <result property="id"    column="id"    />
+        <result property="number"    column="number"    />
+        <result property="name"    column="name"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="equipmentNumber"    column="equipment_number"    />
+        <result property="equipmentName"    column="equipment_name"    />
+        <result property="equipmentBrand"    column="equipment_brand"    />
+        <result property="equipmentSpecification"    column="equipment_specification"    />
+        <result property="equipmentType"    column="equipment_type"    />
+        <result property="reportRepairTime"    column="report_repair_time"    />
+        <result property="finishTime"    column="finish_time"    />
+        <result property="repairResult"    column="repair_result"    />
+        <result property="repairUserId"    column="repair_user_id"    />
+        <result property="repairUserName"    column="repair_user_name"    />
+        <result property="confirmUserId"    column="confirm_user_id"    />
+        <result property="confirmUserName"    column="confirm_user_name"    />
+        <result property="confirmTime"    column="confirm_time"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="RepairOrderRepairOrderEntryResult" type="RepairOrder" extends="RepairOrderResult">
+        <collection property="repairOrderEntryList" notNullColumn="sub_id" javaType="java.util.List" resultMap="RepairOrderEntryResult" />
+    </resultMap>
+
+    <resultMap type="RepairOrderEntry" id="RepairOrderEntryResult">
+        <result property="id"    column="sub_id"    />
+        <result property="mainId"    column="sub_main_id"    />
+        <result property="itemId"    column="sub_item_id"    />
+        <result property="itemNumber"    column="sub_item_number"    />
+        <result property="itemName"    column="sub_item_name"    />
+        <result property="itemType"    column="sub_item_type"    />
+        <result property="itemContent"    column="sub_item_content"    />
+        <result property="itemStandard"    column="sub_item_standard"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="pictureUrl"    column="sub_picture_url"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+    </resultMap>
+
+    <sql id="selectRepairOrderVo">
+        select id, number, name, equipment_id, equipment_number, equipment_name, equipment_brand, equipment_specification, equipment_type, report_repair_time, finish_time, repair_result, repair_user_id, repair_user_name, confirm_user_id, confirm_user_name, confirm_time, status, remark, create_by, create_time, update_by, update_time from dm_repair_order
+    </sql>
+
+
+    <select id="selectRepairOrderById" parameterType="Long" resultMap="RepairOrderRepairOrderEntryResult">
+        select a.id, a.number, a.name, a.equipment_id, a.equipment_number, a.equipment_name, a.equipment_brand, a.equipment_specification, a.equipment_type, a.report_repair_time, a.finish_time, a.repair_result, a.repair_user_id, a.repair_user_name, a.confirm_user_id, a.confirm_user_name, a.confirm_time, a.status, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+ b.id as sub_id, b.main_id as sub_main_id, b.item_id as sub_item_id, b.item_number as sub_item_number, b.item_name as sub_item_name, b.item_type as sub_item_type, b.item_content as sub_item_content, b.item_standard as sub_item_standard, b.remark as sub_remark, b.picture_url as sub_picture_url, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time
+        from dm_repair_order a
+        left join dm_repair_order_entry b on b.main_id = a.id
+        where a.id = #{id}
+    </select>
+
+
+
+    <delete id="deleteRepairOrderById" parameterType="Long">
+        delete from dm_repair_order where id = #{id}
+    </delete>
+
+    <delete id="deleteRepairOrderByIds" parameterType="String">
+        delete from dm_repair_order where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRepairOrderEntryByMainIds" parameterType="String">
+        delete from dm_repair_order_entry where main_id in
+        <foreach item="mainId" collection="array" open="(" separator="," close=")">
+            #{mainId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRepairOrderEntryByMainId" parameterType="Long">
+        delete from dm_repair_order_entry where main_id = #{mainId}
+    </delete>
+
+</mapper>

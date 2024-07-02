@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.sourceplan.statement.mapper.PcIndexMapper">
+
+
+
+    <!--产量走势图-->
+    <select id="outputTrend" parameterType="Map"  resultType="Integer">
+
+
+        select r.result from
+        (
+        select   SUM(IFNULL(prp.qualified_quantity,0.0)) result  from
+        pro_workorder pwo
+        left join pro_workorder_entry pwoe on pwoe.id  = (
+        select id from pro_workorder_entry  where workorder_id = pwo.id order by sort desc limit 1
+        )
+        left join pro_report prp on prp.work_order_entry_id = pwoe.id
+        and prp.quality_status in ('A','C')
+        and prp.report_time &gt;= #{map.beginDate}
+        and prp.report_time &lt; #{map.endDate}
+
+        GROUP BY prp.work_order_entry_id
+        ) r where r.result >0
+
+    </select>
+
+    <select id="qualificationRate" resultType="com.alibaba.fastjson2.JSONObject">
+        select sum(report_quantity) zongshu,
+               SUM(qualified_quantity) hege,
+               SUM(unqualified_quantity) buhege
+        from pro_report where status ='A'
+          and report_time &gt;= #{map.beginDate}
+          and report_time &lt;= #{map.endDate}
+
+    </select>
+
+
+</mapper>
